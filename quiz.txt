@@ -1,0 +1,17 @@
+Power Allocation Algorithm
+Ready for a unique challenge? We've prepared a special problem that combines algorithm design with real-world constraints. This is optional.
+You manage a power supply system with a maximum capacity of 100 units, but for safety you can only use 92 units. Multiple devices can draw power simultaneously, with each device having a maximum capacity of 40 units.
+Write pseudo code for a First-In-First-Out (FIFO) resource allocation system that handles these events:
+- When a new device starts consuming power
+- When a device stops consuming power
+- When a device changes its consumption level
+
+Example scenario:
+t=0: Device A connects → gets 40 units (max capacity)
+t=1: Device B connects → A keeps 40 units, B gets 40 units 
+t=2: Device C connects → A keeps 40 units, B keeps 40 units, C gets 12 units (remaining available)
+t=3: Device A drops to 20 units → A keeps 20 units (by choice), B keeps 40 units, C increases to 32 units
+t=4: Device B disconnects → A keeps 20 units (by choice), C increases to 40 units, 32 units now available
+
+Input: List of active devices with their connection timestamps and current consumption values
+Output: Maximum allowed power for each active device

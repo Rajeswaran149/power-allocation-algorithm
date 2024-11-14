@@ -1,0 +1,131 @@
+Here’s a pseudocode solution for the First-In-First-Out (FIFO) Power Allocation Algorithm for your power supply system:
+
+ Problem Constraints Recap:
+- The power supply system has a total capacity of 92 units.
+- Each device has a maximum capacity of 40 units.
+- We need to manage devices as they connect, disconnect, or change their power consumption based on FIFO order.
+
+ Assumptions:
+- FIFO rule: The first device to connect gets priority in power allocation.
+- Power allocation: If a device wants more power than is available, it is allocated as much as can be given.
+- When a device disconnects, its allocated power is freed up and can be reassigned to other devices in FIFO order.
+
+ Pseudocode:
+
+pseudo
+class Device:
+    string name
+    int max_capacity
+    int current_consumption
+    int connection_time
+
+class PowerAllocator:
+    int total_capacity = 92
+    int available_capacity = 92
+    list devices = [] // List to store devices in FIFO order
+
+    // Method to allocate power when a device connects
+    function connect_device(device):
+        if available_capacity == 0:
+            print("Error: No available power.")
+            return
+
+        // Find how much power this device can consume
+        allocated_power = min(device.max_capacity, available_capacity)
+        device.current_consumption = allocated_power
+        available_capacity -= allocated_power
+
+        // Add the device to the FIFO list
+        devices.append(device)
+        print(f"Device {device.name} connected, allocated {allocated_power} units.")
+
+    // Method to change the power consumption of a device
+    function change_device_power(device, new_power):
+        // Remove the old power consumption from available capacity
+        available_capacity += device.current_consumption
+
+        // Update the device power consumption
+        device.current_consumption = new_power
+
+        // Reallocate power if needed
+        if new_power > device.current_consumption:
+            allocate_extra_power()
+
+    // Method to allocate remaining power if some is freed up
+    function allocate_extra_power():
+        for device in devices:
+            if device.current_consumption < device.max_capacity and available_capacity > 0:
+                # Calculate the power to be allocated to the device
+                extra_power = min(device.max_capacity - device.current_consumption, available_capacity)
+                device.current_consumption += extra_power
+                available_capacity -= extra_power
+                print(f"Device {device.name} allocated extra {extra_power} units.")
+
+    // Method to handle when a device disconnects
+    function disconnect_device(device):
+        // Free up the device's current consumption power
+        available_capacity += device.current_consumption
+        devices.remove(device) // Remove device from FIFO list
+        print(f"Device {device.name} disconnected, released {device.current_consumption} units.")
+
+    // Method to print current status of power allocation
+    function print_status():
+        print("Current power allocation:")
+        for device in devices:
+            print(f"Device {device.name}: {device.current_consumption} units")
+
+    // Main loop to handle events
+    function process_event(event):
+        switch event.type:
+            case "connect":
+                connect_device(event.device)
+            case "change":
+                change_device_power(event.device, event.new_power)
+            case "disconnect":
+                disconnect_device(event.device)
+            case "status":
+                print_status()
+
+// Simulation
+allocator = PowerAllocator()
+
+// Example Events
+event1 = {type: "connect", device: Device("A", 40, 0)}
+event2 = {type: "connect", device: Device("B", 40, 0)}
+event3 = {type: "connect", device: Device("C", 40, 0)}
+event4 = {type: "change", device: Device("A", 20, 40), new_power: 20}
+event5 = {type: "disconnect", device: Device("B", 40, 40)}
+
+allocator.process_event(event1) // Device A connects
+allocator.process_event(event2) // Device B connects
+allocator.process_event(event3) // Device C connects
+allocator.process_event(event4) // Device A changes power to 20
+allocator.process_event(event5) // Device B disconnects
+
+
+ Explanation:
+
+1. Device Class: Defines each device with a name, maximum capacity, current consumption, and connection timestamp.
+  
+2. **PowerAllocator Class**:
+   - connect_device(device): Allocates available power to a new device based on FIFO order and available capacity.
+   - change_device_power(device, new_power): Updates the power consumption of an existing device and re-adjusts the allocation as needed.
+   - allocate_extra_power(): If there’s extra available capacity, this method reallocates it to devices that are not using their full power.
+   - disconnect_device(device): Frees up power when a device disconnects, making it available for other devices.
+   - print_status(): Displays the current power allocation for each device.
+
+3. Main Loop: Processes events based on their type: connect, change, or disconnect.
+    The system adjusts available capacity and reallocates power as needed.
+
+ Example Scenario Walkthrough:
+1. t=0: Device A connects → Allocates 40 units.
+2. t=1: Device B connects → Allocates 40 units (A keeps 40 units).
+3. t=2: Device C connects → Allocates 12 units (remaining capacity is 12).
+4. t=3: Device A drops to 20 units → Allocates 20 units (B keeps 40, C increases to 32 units).
+5. t=4: Device B disconnects → Releases 40 units → C gets 40 units.
+
+Summary:
+This pseudocode covers the essential operations of a FIFO-based power allocation system. 
+ It ensures that the devices are allocated power based on availability, priority, and consumption changes. 
+ The system is flexible enough to handle dynamic power adjustments, disconnections, and capacity limitations 
+ while ensuring that the total power usage does not exceed the system’s maximum allowed capacity.
